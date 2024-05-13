@@ -3,9 +3,9 @@ import googlemaps
 import pandas as pd
 import requests
 
-# Funktion zum Abrufen der Zugroute von Google Maps API mit einem GET-Request und festgelegter Abfahrtszeit
-def get_train_route(api_key, start_location, end_location, departure_time):
-    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={start_location}&destination={end_location}&mode=transit&transit_mode=rail&departure_time={departure_time}&key={api_key}"
+# Funktion zum Abrufen der Zugroute von Google Maps API mit einem GET-Request und festgelegter Ankunftszeit
+def get_train_route(api_key, start_location, end_location, arrival_time):
+    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={start_location}&destination={end_location}&mode=transit&transit_mode=rail&arrival_time={arrival_time}&key={api_key}"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
@@ -62,8 +62,8 @@ def main():
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
-    # Abfahrtszeit auf 13. Mai 2024 um 19:00 Uhr festlegen (UNIX-Zeitstempel)
-    departure_time = "1715852905"  # UNIX-Zeitstempel für 13. Mai 2024 um 19:00 Uhr
+    # Ankunftszeit auf 13. Mai 2024 um 19:00 Uhr festlegen (UNIX-Zeitstempel)
+    arrival_time = "1715867305"  # UNIX-Zeitstempel für 13. Mai 2024 um 19:00 Uhr
 
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
     if api_key and start_locations_list and end_location:
@@ -71,7 +71,7 @@ def main():
             start_lat, start_lng = get_coordinates(start_location, api_key)
             end_lat, end_lng = get_coordinates(end_location, api_key)
             # Rufe die Zugroute und die Koordinaten ab
-            train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}", departure_time)
+            train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}", arrival_time)
             
             if train_route is not None:
                 # Zeige die Zugroute als Tabelle an
