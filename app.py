@@ -62,7 +62,11 @@ def main():
 
         # Erstelle eine Google Maps-Karte für alle Routen
         st.subheader(f"Zugrouten auf Karte anzeigen")
-        st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_locations[0]}&destination={end_location}&mode=transit&waypoints={"|".join([f"{coord[0]},{coord[1]}" for coord in route_coordinates_all[1:-1]])}" allowfullscreen></iframe>', unsafe_allow_html=True)
+        waypoints = '|'.join([f"{coord[0]},{coord[1]}" for coord in route_coordinates_all[1:-1]])
+        url = f"https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_locations[0]}&destination={end_location}&mode=transit"
+        if waypoints:
+            url += f"&waypoints={waypoints}"
+        st.markdown(f'<iframe width="100%" height="500" src="{url}" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und wählen Sie mindestens einen Startort sowie einen Zielort aus.")
 
