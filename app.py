@@ -10,7 +10,7 @@ headers = {
 }
 
 def get_coordinates(place):
-    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={"auth_key"}"
+    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={'auth_key'}"
     response = requests.get(url)
     #überprüfen ob code == 200 (Verbindung OK)
     if response.status_code == 200:
