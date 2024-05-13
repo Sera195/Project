@@ -49,7 +49,7 @@ def get_coordinates(place, api_key):
 # Hauptfunktion für die Streamlit-App
 def main():
     # Setze den Titel der Streamlit-App
-    st.title("Zugroute Visualisierung")
+    st.title("TrainMeet")
 
     # Lese den API-Schlüssel aus Streamlit
     api_key = st.secrets["auth_key"]
@@ -61,12 +61,9 @@ def main():
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
-    # Farben für die Routen festlegen
-    colors = ['blue', 'red', 'green', 'yellow', 'orange', 'purple', 'pink']
-
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
     if api_key and start_locations_list and end_location:
-        for i, start_location in enumerate(start_locations_list):
+        for start_location in start_locations_list:
             start_lat, start_lng = get_coordinates(start_location, api_key)
             end_lat, end_lng = get_coordinates(end_location, api_key)
             # Rufe die Zugroute und die Koordinaten ab
@@ -78,15 +75,7 @@ def main():
 
             # Erstelle eine Google Maps-Karte für die Zugroute
             st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-            directions_layer = googlemaps.directions_layer(
-                start = (start_lat, start_lng),
-                end = (end_lat, end_lng),
-                travel_mode = "TRANSIT",
-                stroke_color = colors[i % len(colors)],
-                stroke_weight = 3.0,
-                stroke_opacity = 1.0,
-            )
-            st.markdown(googlemaps.figure_to_html)
+            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
 
