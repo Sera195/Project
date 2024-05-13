@@ -5,7 +5,7 @@ import googlemaps
 
 def get_traffic_data(api_key):
     # Initialisiere Google Maps Client
-    gmaps = googlemaps.Client(key=api_key)
+    gmaps = googlemaps.Client(key="auth_key")
 
     # Beispielabfrage für Verkehrsdaten (hier kannst du deine eigene Abfrage definieren)
     traffic_data = gmaps.places_nearby(location=(40.7128, -74.0060), radius=1000, type='bus_station')
@@ -17,8 +17,7 @@ def main():
     # Setze den Titel der Streamlit-App
     st.title("Öffentlicher Verkehr Visualisierung")
 
-    # Gib eine Eingabefeld für den API-Schlüssel aus
-    api_key = "auth_key"
+
 
     # Wenn ein API-Schlüssel vorhanden ist, rufe die Verkehrsdaten ab und visualisiere sie
     if api_key:
