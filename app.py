@@ -19,7 +19,8 @@ def get_train_route(api_key, start_location, end_location, arrival_time):
                 if step['travel_mode'] == 'TRANSIT':
                     departure_station = step['transit_details']['departure_stop']['name']
                     arrival_station = step['transit_details']['arrival_stop']['name']
-                    line = step['transit_details'].get('line', {}).get('name', "Unknown")
+                    # Linie entfernen
+                    line = ""
                     departure_time = step['transit_details']['departure_time']['text']
                     arrival_time = step['transit_details']['arrival_time']['text']
                     duration = step['duration']['text']
@@ -28,7 +29,6 @@ def get_train_route(api_key, start_location, end_location, arrival_time):
                     processed_data.append({
                         'departure_station': departure_station,
                         'arrival_station': arrival_station,
-                        'line': line,
                         'departure_time': departure_time,
                         'arrival_time': arrival_time,
                         'duration': duration
@@ -87,6 +87,9 @@ def main():
             train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}", arrival_time)
             
             if train_route is not None:
+                # Entferne die Spalte "Linie"
+                train_route.drop(columns=['Linie'], inplace=True, errors='ignore')
+
                 # Zeige die Zugroute als Tabelle an
                 st.subheader(f"Zugroute von {start_location} nach {end_location}")
                 st.write(train_route)
