@@ -17,7 +17,7 @@ def get_train_route(api_key, start_location, end_location):
         if step['travel_mode'] == 'TRANSIT':
             departure_station = step['transit_details']['departure_stop']['name']
             arrival_station = step['transit_details']['arrival_stop']['name']
-            line = step['transit_details']['line']['name'] if 'line' in step['transit_details'] else "Unknown"
+            line = step['transit_details'].get('line', {}).get('name', "Unknown")
             departure_time = step['transit_details']['departure_time']['text']
             arrival_time = step['transit_details']['arrival_time']['text']
             duration = step['duration']['text']
