@@ -49,7 +49,7 @@ def get_coordinates(place, api_key):
 # Hauptfunktion für die Streamlit-App
 def main():
     # Setze den Titel der Streamlit-App
-    st.title("Zugroute Visualisierung")
+    st.title("TrainMeet")
 
     # Lese den API-Schlüssel aus Streamlit
     api_key = st.secrets["auth_key"]
