@@ -42,12 +42,12 @@ def main():
     # Lese den API-Schlüssel aus Streamlit
     api_key = st.secrets["auth_key"]
 
-    # Start- und Endpunkt für die Zugroute
-    start_location = "Zürich HB, Schweiz"
-    end_location = "Genève, Schweiz"
+    # Eingabefelder für Start- und Zielorte
+    start_location = st.text_input("Startort eingeben", "Zürich HB, Schweiz")
+    end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
     # Wenn ein API-Schlüssel vorhanden ist, rufe die Zugroute ab
-    if api_key:
+    if api_key and start_location and end_location:
         # Rufe die Zugroute und die Koordinaten ab
         train_route, route_coordinates = get_train_route(api_key, start_location, end_location)
         
@@ -59,7 +59,7 @@ def main():
         st.subheader("Zugroute auf Karte anzeigen")
         st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein.")
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel sowie Start- und Zielorte ein.")
 
 # Starte die Streamlit-App
 if __name__ == "__main__":
