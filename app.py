@@ -18,7 +18,7 @@ def main():
     st.title("Öffentlicher Verkehr Visualisierung")
 
     # Gib eine Eingabefeld für den API-Schlüssel aus
-    api_key = st.text_input("Google Maps API-Schlüssel")
+    api_key = "auth_key"
 
     # Wenn ein API-Schlüssel vorhanden ist, rufe die Verkehrsdaten ab und visualisiere sie
     if api_key:
