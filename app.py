@@ -6,7 +6,7 @@ import requests
 # Funktion zum Abrufen der Zugroute von Google Maps API
 def get_train_route(api_key, start_location, end_location):
     # Initialisiere Google Maps Client
-    gmaps = googlemaps.Client(key=api_key)
+    gmaps = gmaps.Client(key=api_key)
 
     # Abfrage für die Zugroute
     train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail")
@@ -86,7 +86,7 @@ def main():
                 stroke_weight = 3.0,
                 stroke_opacity = 1.0,
             )
-            st.markdown(gmaps.figure_to_html(fig))
+            st.markdown(gmaps.figure_to_html)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
 
