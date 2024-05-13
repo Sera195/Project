@@ -3,82 +3,68 @@ import googlemaps
 import pandas as pd
 import requests
 
-# Funktion zum Abrufen der Zugroute von Google Maps API
-def get_train_route(api_key, start_location, end_location):
-    # Initialisiere Google Maps Client
-    gmaps = googlemaps.Client(key=api_key)
+# Konfiguration der Karte mit Höhe und Breite und Hinterlegung in fig
+gmaps.configure(api_key=API_KEY)
+fig = gmaps.figure(layout = {"width": "1550px", "height": "600px"})
 
-    # Abfrage für die Zugroute
-    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail")
+# Definiere Farben für verschiedene Routen
+colors = [(0, 0, 255), (255, 0, 0), (0, 255, 0), (255, 255, 0), (255, 165, 0), (128, 0, 128), (255, 192, 203)]
 
-    # Verarbeite die Daten und extrahiere relevante Informationen
-    processed_data = []
-    route_coordinates = []
-    for step in train_route[0]['legs'][0]['steps']:
-        if step['travel_mode'] == 'TRANSIT':
-            departure_station = step['transit_details']['departure_stop']['name']
-            arrival_station = step['transit_details']['arrival_stop']['name']
-            line = step['transit_details'].get('line', {}).get('name', "Unknown")
-            departure_time = step['transit_details']['departure_time']['text']
-            arrival_time = step['transit_details']['arrival_time']['text']
-            duration = step['duration']['text']
-            route_coordinates.append((step['start_location']['lat'], step['start_location']['lng']))
-            route_coordinates.append((step['end_location']['lat'], step['end_location']['lng']))
-            processed_data.append({
-                'departure_station': departure_station,
-                'arrival_station': arrival_station,
-                'line': line,
-                'departure_time': departure_time,
-                'arrival_time': arrival_time,
-                'duration': duration
-            })
-
-    return pd.DataFrame(processed_data), route_coordinates
-
-# Funktion zur Umwandlung von Ortsnamen in Koordinaten
-def get_coordinates(place, api_key):
-    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={api_key}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        if "results" in data and len(data["results"]) > 0:
-            location = data["results"][0]["geometry"]["location"]
-            return location["lat"], location["lng"]
-    return None, None
-
-# Hauptfunktion für die Streamlit-App
-def main():
-    # Setze den Titel der Streamlit-App
-    st.title("Zugroute Visualisierung")
-
-    # Lese den API-Schlüssel aus Streamlit
-    api_key = st.secrets["auth_key"]
-
-    # Startorte eingeben
-    start_locations = st.text_input("Startorte eingeben (getrennt durch Kommas)", "Zürich HB, Schweiz; Bern, Schweiz; Basel, Schweiz")
-    start_locations_list = [x.strip() for x in start_locations.split(';')]
-
-    # Zielort eingeben
-    end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
-
-    # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
-    if api_key and start_locations_list and end_location:
-        for start_location in start_locations_list:
-            start_lat, start_lng = get_coordinates(start_location, api_key)
-            end_lat, end_lng = get_coordinates(end_location, api_key)
-            # Rufe die Zugroute und die Koordinaten ab
-            train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}")
-            
-            # Zeige die Zugroute als Tabelle an
-            st.subheader(f"Zugroute von {start_location} nach {end_location}")
-            st.write(train_route)
-
-            # Erstelle eine Google Maps-Karte für die Zugroute
-            st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
+# Durchlauf der verschiedenen Startpunkte mittels for Schleife
+# Quelle: Angepasst aus ChatGPT
+for i, origin in enumerate(origins):
+    # Überprüfen ob der Standort eine Adresse ist 
+    if ',' in origin:  # Bei der Adresse kann eine Postleitzahl hinzugefügt werden um Doppelungen zu vermeiden jedoch nicht zwingend notwendig 
+        place, postal_code = origin.split(',', 1)
+        start_latlng = get_coordinates(place.strip())  # Koordinaten werden abgerufen und geladen
+        if start_latlng[0] is None or start_latlng[1] is None:
+            #Falls Adresse falsch keine Koordinaten gefunden
+            print(f"Ort nicht gefunden für {place}")
+            continue
+    # Falls keine Adresse direkt die Koordinaten des Ortenamens auslesen
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
+        start_latlng = get_coordinates(origin.strip())  # Koordinaten des Startpunkts abrufen
+        if start_latlng[0] is None or start_latlng[1] is None:
+            # Falls Ort falsch keine Koordinaten gefunden
+            print(f"Ort nicht gefunden für {origin}")
+            continue
 
-# Starte die Streamlit-App
-if __name__ == "__main__":
-    main()
+    # http Anfrage für Routes API zur Bestimmung der Route
+    # Quelle: https://www.youtube.com/watch?v=yOXQAmYl0Aw&t=105s
+    url_origin = f"https://maps.googleapis.com/maps/api/directions/json?origin={start_latlng[0]},{start_latlng[1]}&destination={destination}&key={API_KEY}"
+
+    # Sende http get Anfrage
+    response_origin = requests.get(url_origin)
+
+    # Überprüfe, ob die Anfrage erfolgreich war (Status Code 200 -> OK)
+    if response_origin.status_code == 200:
+        # Extrahiere Daten aus der Antwort (im JSON-Format)
+        data_origin = response_origin.json()
+
+        # Überprüfen ob eine Route zwischen den Koordinaten gefunden werden kann
+        # Quelle: Angepasst aus ChatGPT
+        if "routes" in data_origin and len(data_origin["routes"]) > 0:
+            # Eintrag der Startkoordinaten
+            start_location_origin = (data_origin["routes"][0]["legs"][0]["start_location"]["lat"], data_origin["routes"][0]["legs"][0]["start_location"]["lng"],)
+            # Eintrag der Endkoordinaten
+            end_location_origin = (data_origin["routes"][0]["legs"][0]["end_location"]["lat"], data_origin["routes"][0]["legs"][0]["end_location"]["lng"],)
+
+            # Farbe der Route festlegen
+            # Quelle: https://stackoverflow.com/questions/18729180/understanding-the-modulus-operator
+            color = colors[i % len(colors)]
+
+            # Angaben welche Art der Route hier Transit -> ÖV, sowie die Darstellung der Route (Farbe, Breite sowie Deckkraft)
+            # Quelle: https://developers.google.com/maps/documentation/routes
+            # Quelle: https://www.youtube.com/watch?v=mXGyH8_FcMQ&t=5s
+            transit_layer_origin = gmaps.directions_layer(
+                start = start_location_origin,
+                end = end_location_origin,
+                travel_mode = "TRANSIT",
+                stroke_color = color,
+                stroke_weight = 3.0,
+                stroke_opacity = 1.0,)
+
+            fig.add_layer(transit_layer_origin)
+
+# Zeige die Karte
+st.write(fig)
