@@ -22,8 +22,8 @@ def get_train_route(api_key, start_location, end_location):
             departure_time = step['transit_details']['departure_time']['text']
             arrival_time = step['transit_details']['arrival_time']['text']
             duration = step['duration']['text']
-            route_coordinates.append((step['start_location']['lat'], step['start_location']['lng']))
-            route_coordinates.append((step['end_location']['lat'], step['end_location']['lng']))
+            route_coordinates.append([step['start_location']['lng'], step['start_location']['lat']])
+            route_coordinates.append([step['end_location']['lng'], step['end_location']['lat']])
             processed_data.append({
                 'departure_station': departure_station,
                 'arrival_station': arrival_station,
@@ -71,7 +71,6 @@ def main():
                 pdk.Layer(
                     'PathLayer',
                     data=route_coordinates,
-                    get_path='[lng, lat]',
                     width_scale=8,
                     width_min_pixels=2,
                     get_color=[255, 0, 0],
