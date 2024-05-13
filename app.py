@@ -73,7 +73,7 @@ def main():
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
     # Ankunftszeit für die Zugroute eingeben
-    arrival_time_str = st.text_input("""Ankunftszeit: dd.mm.yyyy-HH:TT""", "13.05.2024-19:00", max_chars=16)
+    arrival_time_str = st.text_input("""Ankunftszeit dd.mm.yyyy-HH:MM""", "13.05.2024-19:00", max_chars=16)
 
     # Umwandlung des eingegebenen Datums in einen UNIX-Zeitstempel
     arrival_time = convert_to_unix_timestamp(arrival_time_str)
