@@ -1,3 +1,5 @@
+pip install gmaps
+
 import requests
 import streamlit as st
 import gmaps
