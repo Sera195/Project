@@ -1,24 +1,16 @@
 import requests
 import streamlit as st
-gmaps = googlemaps.Client(key=st.secrets["auth_key"])
-
-st.write("HELLOdas, im asdlfkj")
-
-headers = {
-    "authorization": st.secrets["auth_key"],
-    "content-type": "application/json"
-}
-
-def get_coordinates(place):
-    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={'auth_key'}"
-    response = requests.get(url)
-    #überprüfen ob code == 200 (Verbindung OK)
-    if response.status_code == 200:
-        data = response.json()
-        if "results" in data and len(data["results"]) > 0:
-            location = data["results"][0]["geometry"]["location"]
-            return location["lat"], location["lng"]
-    return None, None
+import pydeck as pdk
 
 
-st.display(print(data))
+st.pydeck_chart(pdk.Deck(
+    map_style='mapbox://styles/mapbox/light-v9',
+    initial_view_state=pdk.ViewState(
+        latitude=37.76,
+        longitude=-122.4,
+        zoom=11,
+        pitch=50,
+    ),
+    layers=[layer],
+    api_keys={'mapbox': 'your_mapbox_api_key', 'google_maps': 'auth_key'},
+))
