@@ -50,17 +50,19 @@ def main():
 
     # Wenn ein API-Schlüssel vorhanden ist und mindestens ein Startpunkt ausgewählt wurde
     if api_key and start_locations and end_location:
+        route_coordinates_all = []
         for start_location in start_locations:
             # Rufe die Zugroute und die Koordinaten ab
             train_route, route_coordinates = get_train_route(api_key, start_location, end_location)
-            
+            route_coordinates_all.extend(route_coordinates)
+
             # Zeige die Zugroute als Tabelle an
             st.subheader(f"Zugroute von {start_location} nach {end_location}")
             st.write(train_route)
 
-            # Erstelle eine Google Maps-Karte für die Zugroute
-            st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
+        # Erstelle eine Google Maps-Karte für alle Routen
+        st.subheader(f"Zugrouten auf Karte anzeigen")
+        st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_locations[0]}&destination={end_location}&mode=transit&waypoints={"|".join([f"{coord[0]},{coord[1]}" for coord in route_coordinates_all[1:-1]])}" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und wählen Sie mindestens einen Startort sowie einen Zielort aus.")
 
