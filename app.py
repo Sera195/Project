@@ -3,61 +3,54 @@ import googlemaps
 import pydeck as pdk
 import pandas as pd
 
-# Funktion zum Abrufen der Verkehrsdaten von Google Maps API
-def get_traffic_data(api_key):
+# Funktion zum Abrufen der Zugroute von Google Maps API
+def get_train_route(api_key, start_location, end_location):
     # Initialisiere Google Maps Client
     gmaps = googlemaps.Client(key=api_key)
 
-    # Beispielabfrage für Verkehrsdaten (hier kannst du deine eigene Abfrage definieren)
-    traffic_data = gmaps.places_nearby(location=(40.7128, -74.0060), radius=1000, type='bus_station')
+    # Abfrage für die Zugroute
+    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail")
 
     # Verarbeite die Daten und extrahiere relevante Informationen
     processed_data = []
-    for place in traffic_data['results']:
-        processed_data.append({
-            'lat': place['geometry']['location']['lat'],
-            'lon': place['geometry']['location']['lng'],
-            'name': place['name']
-        })
+    for step in train_route[0]['legs'][0]['steps']:
+        if step['travel_mode'] == 'TRANSIT':
+            departure_station = step['transit_details']['departure_stop']['name']
+            arrival_station = step['transit_details']['arrival_stop']['name']
+            line = step['transit_details']['line']['name']
+            departure_time = step['transit_details']['departure_time']['text']
+            arrival_time = step['transit_details']['arrival_time']['text']
+            duration = step['duration']['text']
+            processed_data.append({
+                'departure_station': departure_station,
+                'arrival_station': arrival_station,
+                'line': line,
+                'departure_time': departure_time,
+                'arrival_time': arrival_time,
+                'duration': duration
+            })
 
     return pd.DataFrame(processed_data)
 
 # Hauptfunktion für die Streamlit-App
 def main():
     # Setze den Titel der Streamlit-App
-    st.title("Öffentlicher Verkehr Visualisierung")
+    st.title("Zugroute Visualisierung")
 
     # Lese den API-Schlüssel aus Streamlit
     api_key = st.secrets["auth_key"]
 
-    # Wenn ein API-Schlüssel vorhanden ist, rufe die Verkehrsdaten ab und visualisiere sie
+    # Start- und Endpunkt für die Zugroute
+    start_location = "Zürich HB, Schweiz"
+    end_location = "Genève, Schweiz"
+
+    # Wenn ein API-Schlüssel vorhanden ist, rufe die Zugroute ab und visualisiere sie
     if api_key:
-        # Rufe die Verkehrsdaten ab
-        traffic_data = get_traffic_data(api_key)
+        # Rufe die Zugroute ab
+        train_route = get_train_route(api_key, start_location, end_location)
         
-        # Erstelle eine Pydeck-Karte
-        map_layer = pdk.Layer(
-            'ScatterplotLayer',
-            data=traffic_data,
-            get_position='[lon, lat]',
-            get_radius=100,
-            get_fill_color=[255, 0, 0],
-            pickable=True,
-            auto_highlight=True)
-
-        view_state = pdk.ViewState(
-            latitude=40.7128,
-            longitude=-74.0060,
-            zoom=11,
-            bearing=0,
-            pitch=45)
-
-        # Render die Pydeck-Karte in Streamlit
-        st.pydeck_chart(pdk.Deck(
-            map_style='mapbox://styles/mapbox/light-v9',
-            initial_view_state=view_state,
-            layers=[map_layer],
-            tooltip={"text": "Public Transport Station"}))
+        # Zeige die Zugroute als Tabelle an
+        st.write(train_route)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein.")
 
