@@ -20,8 +20,8 @@ def main():
 
 
     # Wenn ein API-Schlüssel vorhanden ist, rufe die Verkehrsdaten ab und visualisiere sie
-    if api_key:
-        traffic_data = get_traffic_data(api_key)
+    if auth_key:
+        traffic_data = get_traffic_data("auth_key")
         
         # Konvertiere die Daten in ein pydeck DataFrame
         # Hier musst du die Daten entsprechend formatieren, damit sie mit Pydeck kompatibel sind
