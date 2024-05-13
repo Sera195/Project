@@ -19,3 +19,6 @@ def get_coordinates(place):
             location = data["results"][0]["geometry"]["location"]
             return location["lat"], location["lng"]
     return None, None
+
+
+st.display(print(data))
