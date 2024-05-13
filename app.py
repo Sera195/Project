@@ -53,26 +53,21 @@ def main():
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
-    # Liste von vorgegebenen Abfahrtszeiten
-    departure_times = ["08:00", "09:00", "10:00"]  # Hier kannst du weitere Zeiten hinzufügen
-
-    # Abfahrtszeit auswählen
-    selected_departure_time = st.selectbox("Abfahrtszeit auswählen", departure_times)
+    # Abfahrtszeit eingeben
+    departure_time = st.text_input("Abfahrtszeit eingeben (Format: YYYY-MM-DDTHH:MM:SS)", "")
 
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
-    if api_key and start_location and end_location:
-        # Rufe die Zugrouten für jede vorgegebene Abfahrtszeit ab
-        for departure_time in departure_times:
-            # Rufe die Zugroute und die Koordinaten ab
-            train_route, route_coordinates = get_train_route(api_key, start_location, end_location, departure_time)
-            
-            # Zeige die Zugroute als Tabelle an
-            st.subheader(f"Zugroute von {start_location} nach {end_location} (Abfahrt um {departure_time})")
-            st.write(train_route)
+    if api_key and start_location and end_location and departure_time:
+        # Rufe die Zugroute und die Koordinaten ab
+        train_route, route_coordinates = get_train_route(api_key, start_location, end_location, departure_time)
+        
+        # Zeige die Zugroute als Tabelle an
+        st.subheader(f"Zugroute von {start_location} nach {end_location} (Abfahrt um {departure_time})")
+        st.write(train_route)
 
-            # Erstelle eine Google Maps-Karte für die Zugroute
-            st.subheader(f"Zugroute von {start_location} nach {end_location} (Abfahrt um {departure_time}) auf Karte anzeigen")
-            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit&departure_time={departure_time}" allowfullscreen></iframe>', unsafe_allow_html=True)
+        # Erstelle eine Google Maps-Karte für die Zugroute
+        st.subheader(f"Zugroute von {start_location} nach {end_location} (Abfahrt um {departure_time}) auf Karte anzeigen")
+        st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit&departure_time={departure_time}" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein, sowie einen gültigen Startort, Zielort und Abfahrtszeit.")
 
