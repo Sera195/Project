@@ -1,12 +1,4 @@
-import requests
-import gmaps
 import streamlit as st
-
-headers = {
-    "authorization": st.secrets["auth_key"],
-    "content-type": "application/json"
-}
-
 def new_york():
 
     # Plot coordinates
