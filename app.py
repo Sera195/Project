@@ -1,6 +1,5 @@
 import requests
 import streamlit as st
-import gmaps
 
 st.write("HELLOdas, im asdlfkj")
 
