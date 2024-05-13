@@ -20,16 +20,15 @@ def main():
 
 
     # Wenn ein API-Schlüssel vorhanden ist, rufe die Verkehrsdaten ab und visualisiere sie
-    if auth_key:
-        traffic_data = get_traffic_data("auth_key")
+traffic_data = get_traffic_data("auth_key")
         
         # Konvertiere die Daten in ein pydeck DataFrame
         # Hier musst du die Daten entsprechend formatieren, damit sie mit Pydeck kompatibel sind
         # Die genaue Formatierung hängt von den erhaltenen Daten ab
-        pydeck_data = ...
+pydeck_data = ...
 
         # Erstelle eine Pydeck-Karte
-        map_layer = pdk.Layer(
+map_layer = pdk.Layer(
             'ScatterplotLayer',
             data=pydeck_data,
             get_position='[lon, lat]',
@@ -38,7 +37,7 @@ def main():
             pickable=True,
             auto_highlight=True)
 
-        view_state = pdk.ViewState(
+view_state = pdk.ViewState(
             latitude=40.7128,
             longitude=-74.0060,
             zoom=11,
@@ -46,13 +45,11 @@ def main():
             pitch=45)
 
         # Render die Pydeck-Karte in Streamlit
-        st.pydeck_chart(pdk.Deck(
+st.pydeck_chart(pdk.Deck(
             map_style='mapbox://styles/mapbox/light-v9',
             initial_view_state=view_state,
             layers=[map_layer],
             tooltip={"text": "Public Transport Station"}))
-    else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein.")
 
 # Starte die Streamlit-App
 if __name__ == "__main__":
