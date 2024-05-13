@@ -1,15 +1,14 @@
 import streamlit as st
 import googlemaps
 import pandas as pd
-from datetime import datetime
 
-# Funktion zum Abrufen der Zugroute von Google Maps API basierend auf der Abfahrtszeit
-def get_train_route(api_key, start_location, end_location, departure_time):
+# Funktion zum Abrufen der Zugroute von Google Maps API
+def get_train_route(api_key, start_location, end_location):
     # Initialisiere Google Maps Client
     gmaps = googlemaps.Client(key=api_key)
 
-    # Abfrage für die Zugroute basierend auf der Abfahrtszeit
-    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail", departure_time=departure_time)
+    # Abfrage für die Zugroute
+    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail")
 
     # Verarbeite die Daten und extrahiere relevante Informationen
     processed_data = []
@@ -51,22 +50,19 @@ def main():
 
     # Wenn ein API-Schlüssel vorhanden ist und mindestens ein Startpunkt ausgewählt wurde
     if api_key and start_locations and end_location:
-        # Setze die Abfahrtszeit auf den aktuellen Zeitpunkt
-        departure_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-
-        # Rufe die Zugroute und die Koordinaten ab basierend auf der Abfahrtszeit
         for start_location in start_locations:
-            train_route, route_coordinates = get_train_route(api_key, start_location, end_location, departure_time)
+            # Rufe die Zugroute und die Koordinaten ab
+            train_route, route_coordinates = get_train_route(api_key, start_location, end_location)
             
             # Zeige die Zugroute als Tabelle an
-            st.subheader(f"Zugroute von {start_location} nach {end_location} mit Abfahrtszeit {departure_time}")
+            st.subheader(f"Zugroute von {start_location} nach {end_location}")
             st.write(train_route)
 
             # Erstelle eine Google Maps-Karte für die Zugroute
             st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit&departure_time={departure_time}" allowfullscreen></iframe>', unsafe_allow_html=True)
+            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein, wählen Sie mindestens einen Startort sowie einen Zielort aus und geben Sie eine Ankunftszeit ein.")
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und wählen Sie mindestens einen Startort sowie einen Zielort aus.")
 
 # Starte die Streamlit-App
 if __name__ == "__main__":
