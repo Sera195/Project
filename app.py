@@ -9,11 +9,9 @@ def get_train_route(api_key, start_location, end_location):
     # Initialisiere Google Maps Client
     gmaps = googlemaps.Client(key=api_key)
 
-    # Aktuelle Zeit als Abfahrtszeitpunkt
-    departure_time = datetime.datetime.now()
 
     # Abfrage für die Zugroute mit aktueller Abfahrtszeit
-    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail", departure_time=departure_time)
+    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail", departure_time=now)
 
     # Verarbeite die Daten und extrahiere relevante Informationen
     processed_data = []
