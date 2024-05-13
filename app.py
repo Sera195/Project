@@ -54,26 +54,28 @@ def main():
     # Lese den API-Schlüssel aus Streamlit
     api_key = st.secrets["auth_key"]
 
-    # Verschiedene Startpunkte auswählen
-    start_location = st.text_input("Startort eingeben", "Zürich HB, Schweiz")
-    start_lat, start_lng = get_coordinates(start_location, api_key)
+    # Startorte eingeben
+    start_locations = st.text_input("Startorte eingeben (getrennt durch Kommas)", "Zürich HB, Schweiz; Bern, Schweiz; Basel, Schweiz")
+    start_locations_list = [x.strip() for x in start_locations.split(';')]
 
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
-    end_lat, end_lng = get_coordinates(end_location, api_key)
 
-    # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielorte gültig sind
-    if api_key and start_lat and start_lng and end_lat and end_lng:
-        # Rufe die Zugroute und die Koordinaten ab
-        train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}")
-        
-        # Zeige die Zugroute als Tabelle an
-        st.subheader(f"Zugroute von {start_location} nach {end_location}")
-        st.write(train_route)
+    # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
+    if api_key and start_locations_list and end_location:
+        for start_location in start_locations_list:
+            start_lat, start_lng = get_coordinates(start_location, api_key)
+            end_lat, end_lng = get_coordinates(end_location, api_key)
+            # Rufe die Zugroute und die Koordinaten ab
+            train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}")
+            
+            # Zeige die Zugroute als Tabelle an
+            st.subheader(f"Zugroute von {start_location} nach {end_location}")
+            st.write(train_route)
 
-        # Erstelle eine Google Maps-Karte für die Zugroute
-        st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-        st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
+            # Erstelle eine Google Maps-Karte für die Zugroute
+            st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
+            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
 
