@@ -1,15 +1,24 @@
-pip install streamlit-folium
-
+import requests
 import streamlit as st
-def new_york():
+import gmaps
 
-    # Plot coordinates
-    coordinates = (40.75, -74)
-    _map = gmaps.figure(center=coordinates, zoom_level=12)
+st.write("HELLO, im asdlfkj")
 
-    # Render map in Streamlit
-    snippet = embed.embed_snippet(views=_map)
-    html = embed.html_template.format(title="", snippet=snippet)
-    return components.html(html, height=500,width=500)
+headers = {
+    "authorization": st.secrets["auth_key"],
+    "content-type": "application/json"
+}
 
-new_york()
+def get_coordinates(place):
+    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={'auth_key'}"
+    response = requests.get(url)
+    #überprüfen ob code == 200 (Verbindung OK)
+    if response.status_code == 200:
+        data = response.json()
+        if "results" in data and len(data["results"]) > 0:
+            location = data["results"][0]["geometry"]["location"]
+            return location["lat"], location["lng"]
+    return None, None
+
+
+st.display(print(data))
