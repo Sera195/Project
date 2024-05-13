@@ -1,5 +1,3 @@
-pip install streamlit googlemaps
-
 import requests
 import streamlit as st
 gmaps = googlemaps.Client(key=st.secrets["auth_key"])
