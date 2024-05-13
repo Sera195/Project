@@ -1,6 +1,7 @@
 import streamlit as st
 import googlemaps
 import pandas as pd
+import requests
 
 # Funktion zum Abrufen der Zugroute von Google Maps API
 def get_train_route(api_key, start_location, end_location):
@@ -34,6 +35,17 @@ def get_train_route(api_key, start_location, end_location):
 
     return pd.DataFrame(processed_data), route_coordinates
 
+# Funktion zur Umwandlung von Ortsnamen in Koordinaten
+def get_coordinates(place, api_key):
+    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={api_key}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if "results" in data and len(data["results"]) > 0:
+            location = data["results"][0]["geometry"]["location"]
+            return location["lat"], location["lng"]
+    return None, None
+
 # Hauptfunktion für die Streamlit-App
 def main():
     # Setze den Titel der Streamlit-App
@@ -43,26 +55,27 @@ def main():
     api_key = st.secrets["auth_key"]
 
     # Verschiedene Startpunkte auswählen
-    start_locations = st.multiselect("Startorte auswählen", ["Zürich HB, Schweiz", "Bern, Schweiz", "Basel, Schweiz"])
+    start_location = st.text_input("Startort eingeben", "Zürich HB, Schweiz")
+    start_lat, start_lng = get_coordinates(start_location, api_key)
 
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
+    end_lat, end_lng = get_coordinates(end_location, api_key)
 
-    # Wenn ein API-Schlüssel vorhanden ist und mindestens ein Startpunkt ausgewählt wurde
-    if api_key and start_locations and end_location:
-        for start_location in start_locations:
-            # Rufe die Zugroute und die Koordinaten ab
-            train_route, route_coordinates = get_train_route(api_key, start_location, end_location)
-            
-            # Zeige die Zugroute als Tabelle an
-            st.subheader(f"Zugroute von {start_location} nach {end_location}")
-            st.write(train_route)
+    # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielorte gültig sind
+    if api_key and start_lat and start_lng and end_lat and end_lng:
+        # Rufe die Zugroute und die Koordinaten ab
+        train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}")
+        
+        # Zeige die Zugroute als Tabelle an
+        st.subheader(f"Zugroute von {start_location} nach {end_location}")
+        st.write(train_route)
 
-            # Erstelle eine Google Maps-Karte für die Zugroute
-            st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
+        # Erstelle eine Google Maps-Karte für die Zugroute
+        st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
+        st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und wählen Sie mindestens einen Startort sowie einen Zielort aus.")
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
 
 # Starte die Streamlit-App
 if __name__ == "__main__":
