@@ -66,7 +66,7 @@ def main():
     api_key = st.secrets["auth_key"]
 
     # Startorte eingeben
-    start_locations = st.text_input("Startorte eingeben (getrennt durch ;)", "Zürich HB, Schweiz; Bern, Schweiz; Basel, Schweiz")
+    start_locations = st.text_input("""Startorte eingeben (getrennt durch ";" )""", "Zürich HB, Schweiz; Bern, Schweiz; Basel, Schweiz")
     start_locations_list = [x.strip() for x in start_locations.split(';')]
 
     # Zielort eingeben
