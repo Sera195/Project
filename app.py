@@ -1,9 +1,14 @@
 import streamlit as st
 import googlemaps
 import pandas as pd
+from datetime import datetime
 
 # Funktion zum Abrufen der Zugroute von Google Maps API
+
 def get_train_route(api_key, start_location, end_location, departure_time):
+    # Konvertiere die Abfahrtszeit in das richtige Format
+    departure_time = datetime.strptime(departure_time, "%Y-%m-%dT%H:%M:%S").strftime("%Y-%m-%dT%H:%M:%S")
+
     # Initialisiere Google Maps Client
     gmaps = googlemaps.Client(key=api_key)
 
