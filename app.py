@@ -1,18 +1,15 @@
-
-Copy code
 import streamlit as st
 import googlemaps
-import requests
-from datetime import datetime, timedelta
 import pandas as pd
+import requests
 
 # Funktion zum Abrufen der Zugroute von Google Maps API
-def get_train_route(api_key, start_location, end_location, departure_time):
+def get_train_route(api_key, start_location, end_location):
     # Initialisiere Google Maps Client
     gmaps = googlemaps.Client(key=api_key)
 
-    # Abfrage für die Zugroute mit Abfahrtszeit
-    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail", departure_time=departure_time)
+    # Abfrage für die Zugroute
+    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail")
 
     # Verarbeite die Daten und extrahiere relevante Informationen
     processed_data = []
@@ -38,18 +35,16 @@ def get_train_route(api_key, start_location, end_location, departure_time):
 
     return pd.DataFrame(processed_data), route_coordinates
 
-# Funktion zum Abrufen der lokalen Zeit für einen Ort
-def get_local_time(api_key, location):
-    url = f"https://maps.googleapis.com/maps/api/timezone/json?location={location}&timestamp=0&key={api_key}"
+# Funktion zur Umwandlung von Ortsnamen in Koordinaten
+def get_coordinates(place, api_key):
+    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={place}&key={api_key}"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        raw_offset = data.get("rawOffset", 0)
-        dst_offset = data.get("dstOffset", 0)
-        local_time = datetime.utcnow() + timedelta(seconds=raw_offset + dst_offset)
-        return local_time.strftime("%Y-%m-%dT%H:%M:%S")
-    else:
-        return None
+        if "results" in data and len(data["results"]) > 0:
+            location = data["results"][0]["geometry"]["location"]
+            return location["lat"], location["lng"]
+    return None, None
 
 # Hauptfunktion für die Streamlit-App
 def main():
@@ -59,33 +54,30 @@ def main():
     # Lese den API-Schlüssel aus Streamlit
     api_key = st.secrets["auth_key"]
 
-    # Startort eingeben
-    start_location = st.text_input("Startort eingeben", "Zürich, Schweiz")
+    # Startorte eingeben
+    start_locations = st.text_input("Startorte eingeben (getrennt durch Kommas)", "Zürich HB, Schweiz; Bern, Schweiz; Basel, Schweiz")
+    start_locations_list = [x.strip() for x in start_locations.split(';')]
 
     # Zielort eingeben
-    end_location = st.text_input("Zielort eingeben", "Genf, Schweiz")
+    end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
-    if api_key and start_location and end_location:
-        # Rufe die lokale Abfahrtszeit für den Startort ab
-        departure_time = get_local_time(api_key, start_location)
-
-        # Wenn die Abfahrtszeit abgerufen werden konnte
-        if departure_time:
+    if api_key and start_locations_list and end_location:
+        for start_location in start_locations_list:
+            start_lat, start_lng = get_coordinates(start_location, api_key)
+            end_lat, end_lng = get_coordinates(end_location, api_key)
             # Rufe die Zugroute und die Koordinaten ab
-            train_route, route_coordinates = get_train_route(api_key, start_location, end_location, departure_time)
+            train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}")
             
             # Zeige die Zugroute als Tabelle an
-            st.subheader(f"Zugroute von {start_location} nach {end_location} (Abfahrt um {departure_time})")
+            st.subheader(f"Zugroute von {start_location} nach {end_location}")
             st.write(train_route)
 
             # Erstelle eine Google Maps-Karte für die Zugroute
-            st.subheader(f"Zugroute von {start_location} nach {end_location} (Abfahrt um {departure_time}) auf Karte anzeigen")
-            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit&departure_time={departure_time}" allowfullscreen></iframe>', unsafe_allow_html=True)
-        else:
-            st.warning("Die lokale Abfahrtszeit konnte nicht abgerufen werden. Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut.")
+            st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
+            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel, sowie einen gültigen Startort und Zielort ein.")
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
 
 # Starte die Streamlit-App
 if __name__ == "__main__":
