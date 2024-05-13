@@ -1,6 +1,5 @@
 import streamlit as st
 import googlemaps
-import pydeck as pdk
 import pandas as pd
 
 # Funktion zum Abrufen der Zugroute von Google Maps API
@@ -22,8 +21,8 @@ def get_train_route(api_key, start_location, end_location):
             departure_time = step['transit_details']['departure_time']['text']
             arrival_time = step['transit_details']['arrival_time']['text']
             duration = step['duration']['text']
-            route_coordinates.append([step['start_location']['lng'], step['start_location']['lat']])
-            route_coordinates.append([step['end_location']['lng'], step['end_location']['lat']])
+            route_coordinates.append((step['start_location']['lat'], step['start_location']['lng']))
+            route_coordinates.append((step['end_location']['lat'], step['end_location']['lng']))
             processed_data.append({
                 'departure_station': departure_station,
                 'arrival_station': arrival_station,
@@ -56,29 +55,9 @@ def main():
         st.subheader("Zugroute als Tabelle")
         st.write(train_route)
 
-        # Erstelle eine Pydeck-Karte für die Zugroute
+        # Erstelle eine Google Maps-Karte für die Zugroute
         st.subheader("Zugroute auf Karte anzeigen")
-        st.pydeck_chart(pdk.Deck(
-            map_style='mapbox://styles/mapbox/light-v9',
-            initial_view_state=pdk.ViewState(
-                latitude=46.8182,
-                longitude=8.2275,
-                zoom=7,
-                pitch=0,
-                bearing=0
-            ),
-            layers=[
-                pdk.Layer(
-                    'PathLayer',
-                    data=route_coordinates,
-                    width_scale=8,
-                    width_min_pixels=2,
-                    get_color=[255, 0, 0],
-                    pickable=True,
-                    auto_highlight=True
-                )
-            ]
-        ))
+        st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein.")
 
