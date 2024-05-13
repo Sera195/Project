@@ -66,14 +66,14 @@ def main():
     api_key = st.secrets["auth_key"]
 
     # Startorte eingeben
-    start_locations = st.text_input("""Abfahrtso eingeben (getrennt durch ";" )""", "Zürich HB, Schweiz; Bern, Schweiz; Basel, Schweiz")
+    start_locations = st.text_input("""Abfahrtsorte eingeben (getrennt durch ";" )""", "Zürich HB, Schweiz; Bern, Schweiz; Basel, Schweiz")
     start_locations_list = [x.strip() for x in start_locations.split(';')]
 
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
     # Ankunftszeit für die Zugroute eingeben
-    arrival_time_str = st.text_input("""Ankunftszeit dd.mm.yyyy-HH:MM""", "13.05.2024-19:00", max_chars=16)
+    arrival_time_str = st.text_input("Ankunftszeit (Format: dd.mm.yyyy-HH:MM)", "13.05.2024-19:00", max_chars=16)
 
     # Umwandlung des eingegebenen Datums in einen UNIX-Zeitstempel
     arrival_time = convert_to_unix_timestamp(arrival_time_str)
