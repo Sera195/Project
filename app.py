@@ -1,6 +1,6 @@
 import requests
 import streamlit as st
-import googlemaps
+gmaps = googlemaps.Client(key=st.secrets["auth_key"])
 
 st.write("HELLOdas, im asdlfkj")
 
