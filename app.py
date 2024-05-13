@@ -42,24 +42,27 @@ def main():
     # Lese den API-Schlüssel aus Streamlit
     api_key = st.secrets["auth_key"]
 
-    # Eingabefelder für Start- und Zielorte
-    start_location = st.text_input("Startort eingeben", "Zürich HB, Schweiz")
+    # Verschiedene Startpunkte auswählen
+    start_locations = st.multiselect("Startorte auswählen", ["Zürich HB, Schweiz", "Bern, Schweiz", "Basel, Schweiz"])
+
+    # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
-    # Wenn ein API-Schlüssel vorhanden ist, rufe die Zugroute ab
-    if api_key and start_location and end_location:
-        # Rufe die Zugroute und die Koordinaten ab
-        train_route, route_coordinates = get_train_route(api_key, start_location, end_location)
-        
-        # Zeige die Zugroute als Tabelle an
-        st.subheader("Zugroute als Tabelle")
-        st.write(train_route)
+    # Wenn ein API-Schlüssel vorhanden ist und mindestens ein Startpunkt ausgewählt wurde
+    if api_key and start_locations and end_location:
+        for start_location in start_locations:
+            # Rufe die Zugroute und die Koordinaten ab
+            train_route, route_coordinates = get_train_route(api_key, start_location, end_location)
+            
+            # Zeige die Zugroute als Tabelle an
+            st.subheader(f"Zugroute von {start_location} nach {end_location}")
+            st.write(train_route)
 
-        # Erstelle eine Google Maps-Karte für die Zugroute
-        st.subheader("Zugroute auf Karte anzeigen")
-        st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
+            # Erstelle eine Google Maps-Karte für die Zugroute
+            st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
+            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_location}&destination={end_location}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel sowie Start- und Zielorte ein.")
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und wählen Sie mindestens einen Startort sowie einen Zielort aus.")
 
 # Starte die Streamlit-App
 if __name__ == "__main__":
