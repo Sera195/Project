@@ -87,6 +87,9 @@ def main():
             train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}", arrival_time)
             
             if train_route is not None:
+                # Entferne die Standard-Indexspalte und setze "departure_station" als neuen Index
+                train_route.set_index('departure_station', inplace=True)
+
                 # Entferne die Spalte "Linie"
                 train_route.drop(columns=['Linie'], inplace=True, errors='ignore')
 
