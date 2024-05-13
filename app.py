@@ -2,6 +2,13 @@ import requests
 import streamlit as st
 import pydeck as pdk
 
+layer = pdk.Layer(
+    'ScatterplotLayer',
+    data=df, # your dataframe
+    get_position='[lon, lat]',
+    get_color='[200, 30, 0, 160]',
+    get_radius=200,
+)
 
 st.pydeck_chart(pdk.Deck(
     map_style='mapbox://styles/mapbox/light-v9',
