@@ -1,6 +1,26 @@
 import streamlit as st
 import googlemaps
 import pydeck as pdk
+import pandas as pd
+
+# Funktion zum Abrufen der Verkehrsdaten von Google Maps API
+def get_traffic_data(api_key):
+    # Initialisiere Google Maps Client
+    gmaps = googlemaps.Client(key=api_key)
+
+    # Beispielabfrage für Verkehrsdaten (hier kannst du deine eigene Abfrage definieren)
+    traffic_data = gmaps.places_nearby(location=(40.7128, -74.0060), radius=1000, type='bus_station')
+
+    # Verarbeite die Daten und extrahiere relevante Informationen
+    processed_data = []
+    for place in traffic_data['results']:
+        processed_data.append({
+            'lat': place['geometry']['location']['lat'],
+            'lon': place['geometry']['location']['lng'],
+            'name': place['name']
+        })
+
+    return pd.DataFrame(processed_data)
 
 # Hauptfunktion für die Streamlit-App
 def main():
@@ -12,21 +32,13 @@ def main():
 
     # Wenn ein API-Schlüssel vorhanden ist, rufe die Verkehrsdaten ab und visualisiere sie
     if api_key:
-        # Initialisiere Google Maps Client
-        gmaps = googlemaps.Client(key=api_key)
-
-        # Beispielabfrage für Verkehrsdaten (hier kannst du deine eigene Abfrage definieren)
-        traffic_data = gmaps.places_nearby(location=(40.7128, -74.0060), radius=1000, type='bus_station')
-
-        # Konvertiere die Daten in ein pydeck DataFrame
-        # Hier musst du die Daten entsprechend formatieren, damit sie mit Pydeck kompatibel sind
-        # Die genaue Formatierung hängt von den erhaltenen Daten ab
-        pydeck_data = ...
-
+        # Rufe die Verkehrsdaten ab
+        traffic_data = get_traffic_data(api_key)
+        
         # Erstelle eine Pydeck-Karte
         map_layer = pdk.Layer(
             'ScatterplotLayer',
-            data=pydeck_data,
+            data=traffic_data,
             get_position='[lon, lat]',
             get_radius=100,
             get_fill_color=[255, 0, 0],
