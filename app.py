@@ -1,12 +1,12 @@
 import streamlit as st
-import googlemaps as gmaps
+import googlemaps
 import pandas as pd
 import requests
 
 # Funktion zum Abrufen der Zugroute von Google Maps API
 def get_train_route(api_key, start_location, end_location):
     # Initialisiere Google Maps Client
-    gmaps = gmaps.Client(key=api_key)
+    gmaps = googlemaps.Client(key=api_key)
 
     # Abfrage für die Zugroute
     train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail")
@@ -78,7 +78,7 @@ def main():
 
             # Erstelle eine Google Maps-Karte für die Zugroute
             st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-            directions_layer = gmaps.directions_layer(
+            directions_layer = googlemaps.directions_layer(
                 start = (start_lat, start_lng),
                 end = (end_lat, end_lng),
                 travel_mode = "TRANSIT",
@@ -86,7 +86,7 @@ def main():
                 stroke_weight = 3.0,
                 stroke_opacity = 1.0,
             )
-            st.markdown(gmaps.figure_to_html)
+            st.markdown(googlemaps.figure_to_html)
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
 
