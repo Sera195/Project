@@ -2,13 +2,17 @@ import streamlit as st
 import googlemaps
 import pandas as pd
 import requests
+import datetime
 
 # Funktion zum Abrufen der Zugroute von Google Maps API
-def get_train_route(api_key, start_location, end_location, departure_time):
+def get_train_route(api_key, start_location, end_location):
     # Initialisiere Google Maps Client
     gmaps = googlemaps.Client(key=api_key)
 
-    # Abfrage für die Zugroute mit vorgegebenem Abfahrtszeitpunkt
+    # Aktuelle Zeit als Abfahrtszeitpunkt
+    departure_time = datetime.datetime.now()
+
+    # Abfrage für die Zugroute mit aktueller Abfahrtszeit
     train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail", departure_time=departure_time)
 
     # Verarbeite die Daten und extrahiere relevante Informationen
