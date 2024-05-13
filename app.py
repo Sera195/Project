@@ -63,7 +63,7 @@ def main():
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
     # Abfahrtszeit auf 13. Mai 2024 um 19:00 Uhr festlegen (UNIX-Zeitstempel)
-    departure_time = "1715600905"  # UNIX-Zeitstempel für 13. Mai 2024 um 19:00 Uhr
+    departure_time = "1715852905"  # UNIX-Zeitstempel für 13. Mai 2024 um 19:00 Uhr
 
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
     if api_key and start_locations_list and end_location:
