@@ -2,6 +2,7 @@ import streamlit as st
 import googlemaps
 import pandas as pd
 import requests
+from datetime import datetime
 
 # Funktion zum Abrufen der Zugroute von Google Maps API mit einem GET-Request und festgelegter Ankunftszeit
 def get_train_route(api_key, start_location, end_location, arrival_time):
@@ -47,6 +48,15 @@ def get_coordinates(place, api_key):
             return location["lat"], location["lng"]
     return None, None
 
+# Funktion zur Umwandlung von Datum und Uhrzeit in UNIX-Zeitstempel
+def convert_to_unix_timestamp(datetime_str):
+    try:
+        datetime_obj = datetime.strptime(datetime_str, '%d.%m.%Y-%H:%M')
+        unix_timestamp = int(datetime_obj.timestamp())
+        return unix_timestamp
+    except ValueError:
+        return None
+
 # Hauptfunktion für die Streamlit-App
 def main():
     # Setze den Titel der Streamlit-App
@@ -63,10 +73,13 @@ def main():
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
     # Ankunftszeit für die Zugroute eingeben
-    arrival_time = st.text_input("Ankunftszeit (Unix-Zeitstempel)", "1715867305")
+    arrival_time_str = st.text_input("Ankunftszeit (Format: dd.mm.yyyy-HH:MM)", "13.05.2024-19:00")
+
+    # Umwandlung des eingegebenen Datums in einen UNIX-Zeitstempel
+    arrival_time = convert_to_unix_timestamp(arrival_time_str)
 
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
-    if api_key and start_locations_list and end_location and arrival_time:
+    if api_key and start_locations_list and end_location and arrival_time is not None:
         for start_location in start_locations_list:
             start_lat, start_lng = get_coordinates(start_location, api_key)
             end_lat, end_lng = get_coordinates(end_location, api_key)
@@ -84,7 +97,8 @@ def main():
             else:
                 st.warning("Keine Route gefunden.")
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start")
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein, stellen Sie sicher, dass die Start- und Zielorte gültig sind, und verwenden Sie das richtige Datumsformat (dd.mm.yyyy-HH:MM).")
 
+# Starte die Streamlit-App
 if __name__ == "__main__":
     main()
