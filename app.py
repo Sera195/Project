@@ -1,5 +1,5 @@
 import streamlit as st
-import googlemaps
+import googlemaps as gmaps
 import pandas as pd
 import requests
 
