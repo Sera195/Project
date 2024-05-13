@@ -62,11 +62,11 @@ def main():
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
-    # Ankunftszeit auf 13. Mai 2024 um 19:00 Uhr festlegen (UNIX-Zeitstempel)
-    arrival_time = "1715867305"  # UNIX-Zeitstempel für 13. Mai 2024 um 19:00 Uhr
+    # Ankunftszeit für die Zugroute eingeben
+    arrival_time = st.text_input("Ankunftszeit (Unix-Zeitstempel)", "1715867305")
 
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
-    if api_key and start_locations_list and end_location:
+    if api_key and start_locations_list and end_location and arrival_time:
         for start_location in start_locations_list:
             start_lat, start_lng = get_coordinates(start_location, api_key)
             end_lat, end_lng = get_coordinates(end_location, api_key)
@@ -84,8 +84,4 @@ def main():
             else:
                 st.warning("Keine Route gefunden.")
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
-
-# Starte die Streamlit-App
-if __name__ == "__main__":
-    main()
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start")
