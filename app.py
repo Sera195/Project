@@ -85,3 +85,6 @@ def main():
                 st.warning("Keine Route gefunden.")
     else:
         st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start")
+
+if __name__ == "__main__":
+    main()
