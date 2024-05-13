@@ -4,12 +4,12 @@ import pandas as pd
 import requests
 
 # Funktion zum Abrufen der Zugroute von Google Maps API
-def get_train_route(api_key, start_location, end_location):
+def get_train_route(api_key, start_location, end_location, departure_time):
     # Initialisiere Google Maps Client
     gmaps = googlemaps.Client(key=api_key)
 
-    # Abfrage für die Zugroute
-    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail")
+    # Abfrage für die Zugroute mit vorgegebenem Abfahrtszeitpunkt
+    train_route = gmaps.directions(start_location, end_location, mode="transit", transit_mode="rail", departure_time=departure_time)
 
     # Verarbeite die Daten und extrahiere relevante Informationen
     processed_data = []
@@ -61,13 +61,16 @@ def main():
     # Zielort eingeben
     end_location = st.text_input("Zielort eingeben", "Genève, Schweiz")
 
+    # Abfahrtszeitpunkt eingeben
+    departure_time = st.text_input("Abfahrtszeitpunkt (YYYY-MM-DD HH:MM)", "2024-05-13 08:00")
+
     # Wenn ein API-Schlüssel vorhanden ist und Start- und Zielort gültig sind
-    if api_key and start_locations_list and end_location:
+    if api_key and start_locations_list and end_location and departure_time:
         for start_location in start_locations_list:
             start_lat, start_lng = get_coordinates(start_location, api_key)
             end_lat, end_lng = get_coordinates(end_location, api_key)
-            # Rufe die Zugroute und die Koordinaten ab
-            train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}")
+            # Rufe die Zugroute und die Koordinaten ab mit vorgegebenem Abfahrtszeitpunkt
+            train_route, route_coordinates = get_train_route(api_key, f"{start_lat},{start_lng}", f"{end_lat},{end_lng}", departure_time)
             
             # Zeige die Zugroute als Tabelle an
             st.subheader(f"Zugroute von {start_location} nach {end_location}")
@@ -75,9 +78,9 @@ def main():
 
             # Erstelle eine Google Maps-Karte für die Zugroute
             st.subheader(f"Zugroute von {start_location} nach {end_location} auf Karte anzeigen")
-            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit" allowfullscreen></iframe>', unsafe_allow_html=True)
+            st.markdown(f'<iframe width="100%" height="500" src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={start_lat},{start_lng}&destination={end_lat},{end_lng}&mode=transit&departure_time={departure_time}" allowfullscreen></iframe>', unsafe_allow_html=True)
     else:
-        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte gültig sind.")
+        st.warning("Bitte geben Sie Ihren Google Maps API-Schlüssel ein und stellen Sie sicher, dass die Start- und Zielorte sowie der Abfahrtszeitpunkt gültig sind.")
 
 # Starte die Streamlit-App
 if __name__ == "__main__":
