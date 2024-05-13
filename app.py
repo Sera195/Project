@@ -1,6 +1,6 @@
 import requests
 import streamlit as st
-import googlemaps as gmaps
+import googlemaps
 
 st.write("HELLOdas, im asdlfkj")
 
